@@ -60,12 +60,24 @@ public class CountingSortImplementation {
         }
     }
 
+    public String getVersion(){
+        return "CountingSortImplementation";
+    }
+
+    public String getDescription(){
+        return "counting sort is an algorithm for sorting a collection  of objects according to keys that are small integers";
+    }
+
+    public String getAlgorithmSource() {
+        return "Source: https://de.wikibooks.org/wiki/Algorithmensammlung:_Sortierverfahren:_Countingsort";
+    }
+
 
     public class Port implements ISort {
 
         @Override
         public void sort(List<Integer> listToSort) {
-            CountingSortImplementation.sort(listToSort);
+            CountingSortImplementation.countingSort(listToSort);
         }
 
     }
