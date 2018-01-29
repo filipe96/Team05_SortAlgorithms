@@ -22,17 +22,7 @@ public class Application {
             URL[] urls = { new File(Configuration.instance.getPathToJar()).toURI().toURL() };
             URLClassLoader urlClassLoader = new URLClassLoader(urls, Application.class.getClassLoader());
 
-            String classNameToLoad = "Component";
-            switch (Configuration.instance.sortingType) {
-                case bucketsort:
-                    classNameToLoad = "BucketSort";
-                    break;
-
-                case countingsort:
-                    classNameToLoad = "CountingSort";
-                    break;
-            }
-
+            String classNameToLoad = Configuration.instance.getClassNameForSortAlgorithm();
             Class clazz = Class.forName(classNameToLoad, true, urlClassLoader);
             System.out.println("clazz     : " + clazz.toString());
 
