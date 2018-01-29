@@ -60,15 +60,15 @@ public class CountingSortImplementation {
         }
     }
 
-    public String getVersion(){
-        return "CountingSortImplementation";
+    public String getInnerVersion(){
+        return "CountingSort 1.42";
     }
 
-    public String getDescription(){
+    public String getInnerDescription(){
         return "counting sort is an algorithm for sorting a collection  of objects according to keys that are small integers";
     }
 
-    public String getAlgorithmSource() {
+    public String getInnerAlgorithmSource() {
         return "Source: https://de.wikibooks.org/wiki/Algorithmensammlung:_Sortierverfahren:_Countingsort";
     }
 
@@ -78,6 +78,18 @@ public class CountingSortImplementation {
         @Override
         public void sort(List<Integer> listToSort) {
             CountingSortImplementation.countingSort(listToSort);
+        }
+
+        public String getVersion(){
+            return getInnerVersion();
+        }
+
+        public String getDescription(){
+            return getInnerDescription();
+        }
+
+        public String getAlgorithmSource(){
+            return getInnerAlgorithmSource();
         }
 
     }
