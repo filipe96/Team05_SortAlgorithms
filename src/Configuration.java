@@ -1,7 +1,13 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public enum Configuration {
     instance;
 
     public AvailableSortingAlgorithms sortingType = AvailableSortingAlgorithms.bucketsort;
+    public List<Integer> listToSort = new ArrayList<>();
 
     public String userDirectory = System.getProperty("user.dir");
     public String fileSeparator = System.getProperty("file.separator");
@@ -37,5 +43,9 @@ public enum Configuration {
         }
 
         return "Component";
+    }
+
+    public void setListToSort(List<Integer> list) {
+        listToSort = list;
     }
 }
