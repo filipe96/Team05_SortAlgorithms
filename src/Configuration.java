@@ -22,4 +22,8 @@ public enum Configuration {
         pathToJar = userDirectory + fileSeparator + type.name() + fileSeparator +
                 "jar" + fileSeparator + type.name();
     }
+
+    public String getPathToJar() {
+        return pathToJar;
+    }
 }
