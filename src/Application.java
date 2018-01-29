@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -42,9 +43,16 @@ public class Application {
             Method getVersion = port.getClass().getMethod("getVersion");
             String version = (String) getVersion.invoke(port);
             System.out.println("version   : " + version);
-        } catch (Exception e) {
+        } catch (NoSuchMethodException exc) {
             System.out.println("--- exception");
-            System.out.println(e.getMessage());
+            System.out.println(exc.getMessage());
+            exc.printStackTrace();
+        } catch (ClassNotFoundException|NoSuchFieldException exc) {
+            exc.printStackTrace();
+        } catch (IllegalAccessException exc) {
+            exc.printStackTrace();
+        } catch (InvocationTargetException exc) {
+            exc.printStackTrace();
         }
     }
 
