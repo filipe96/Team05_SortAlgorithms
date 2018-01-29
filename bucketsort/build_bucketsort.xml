@@ -12,7 +12,7 @@
 
     <target name="jar">
         <mkdir dir="jar"/>
-        <jar destfile="jar/component.jar" basedir="build">
+        <jar destfile="jar/bucketsort.jar" basedir="build">
             <manifest>
                 <attribute name="Main-Class" value="Component"/>
             </manifest>
