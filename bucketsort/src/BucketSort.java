@@ -47,8 +47,8 @@ public class BucketSort {
      *
      * @param list The list of Integers to be sorted (in place).
      */
-    public static void sort(List<Integer> list) {
-        sort(list, Integer.MIN_VALUE, Integer.MAX_VALUE);
+    public static void bucketSort(List<Integer> list) {
+        bucketSort(list, Integer.MIN_VALUE, Integer.MAX_VALUE);
     }
 
     /**
@@ -63,7 +63,7 @@ public class BucketSort {
      * @param listMin The lower end of the bucket spectrum
      * @param listMax The upper end of the bucket spectrum
      */
-    public static void sort(List<Integer> list, Integer listMin, Integer listMax) {
+    public static void bucketSort(List<Integer> list, Integer listMin, Integer listMax) {
         if (list == null || list.size() == 0) {
             return;
         }
@@ -116,16 +116,16 @@ public class BucketSort {
         return bucket;
     }
 
-    public String getVersion() {
+    public String getInnerVersion() {
         return "BucketSort Algorithm - Version 1.0";
     }
 
-    public String getAlgorithmSource() {
+    public String getInnerAlgorithmSource() {
         return "Source: https://github.com/posborne/java-algorithms/" +
                 "blob/master/src/net/posborne/algorithms/sorting/BucketSort.java";
     }
 
-    public String getDescription() {
+    public String getInnerDescription() {
         return "BucketSort sorts a list of integers by adding them into so-called buckets.";
     }
 
@@ -133,12 +133,24 @@ public class BucketSort {
 
         @Override
         public void sort(List<Integer> listToSort) {
-            BucketSort.sort(listToSort);
+            BucketSort.bucketSort(listToSort);
         }
 
         @Override
         public void sort(List<Integer> listToSort, int listMin, int listMax) {
-            BucketSort.sort(listToSort, listMin, listMax);
+            BucketSort.bucketSort(listToSort, listMin, listMax);
+        }
+
+        public String getVersion() {
+            return getInnerVersion();
+        }
+
+        public String getAlgorithmSource() {
+            return getInnerAlgorithmSource();
+        }
+
+        public String getDescription() {
+            return getInnerDescription();
         }
     }
 

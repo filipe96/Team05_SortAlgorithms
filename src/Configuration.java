@@ -20,7 +20,7 @@ public enum Configuration {
 
     public void setPathToJar(AvailableSortingAlgorithms type) {
         pathToJar = userDirectory + fileSeparator + type.name() + fileSeparator +
-                "jar" + fileSeparator + type.name();
+                "jar" + fileSeparator + type.name() + ".jar";
     }
 
     public String getPathToJar() {

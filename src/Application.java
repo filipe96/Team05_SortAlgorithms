@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
@@ -18,12 +19,13 @@ public class Application {
         Object instance;
 
         try {
+            Configuration.instance.setPathToJar(Configuration.instance.sortingType);
             System.out.println("pathToJar : " + Configuration.instance.getPathToJar());
             URL[] urls = { new File(Configuration.instance.getPathToJar()).toURI().toURL() };
             URLClassLoader urlClassLoader = new URLClassLoader(urls, Application.class.getClassLoader());
 
             String classNameToLoad = Configuration.instance.getClassNameForSortAlgorithm();
-            Class clazz = Class.forName(classNameToLoad, true, urlClassLoader);
+            Class<?> clazz = Class.forName(classNameToLoad, true, urlClassLoader);
             System.out.println("clazz     : " + clazz.toString());
 
             instance = clazz.getMethod("getInstance").invoke(null);
@@ -42,6 +44,8 @@ public class Application {
         } catch (IllegalAccessException exc) {
             exc.printStackTrace();
         } catch (InvocationTargetException exc) {
+            exc.printStackTrace();
+        } catch (MalformedURLException exc) {
             exc.printStackTrace();
         }
     }

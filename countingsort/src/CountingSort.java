@@ -2,16 +2,16 @@
 import java.util.ArrayList;
         import java.util.List;
 
-public class CountingSortImplementation {
+public class CountingSort {
 
-    private static CountingSortImplementation instance = new CountingSortImplementation();
+    private static CountingSort instance = new CountingSort();
     public Port port;
 
-    private CountingSortImplementation() {
+    private CountingSort() {
         port = new Port();
     }
 
-    public CountingSortImplementation getInstance() {
+    public static CountingSort getInstance() {
         return instance;
     }
 
@@ -61,11 +61,11 @@ public class CountingSortImplementation {
     }
 
     public String getVersion(){
-        return "CountingSortImplementation";
+        return "CountingSort Algorithm - Version 1.0";
     }
 
     public String getDescription(){
-        return "counting sort is an algorithm for sorting a collection  of objects according to keys that are small integers";
+        return "Counting sort is an algorithm for sorting a collection of objects according to keys that are small integers.";
     }
 
     public String getAlgorithmSource() {
@@ -77,7 +77,7 @@ public class CountingSortImplementation {
 
         @Override
         public void sort(List<Integer> listToSort) {
-            CountingSortImplementation.countingSort(listToSort);
+            CountingSort.countingSort(listToSort);
         }
 
     }
