@@ -5,6 +5,7 @@ public enum Configuration {
 
     public String userDirectory = System.getProperty("user.dir");
     public String fileSeparator = System.getProperty("file.separator");
+
     // [userDirectory]/[sortingType]/jar/[sortingType].jar
     // e.g. ../bucketsort/jar/bucketsort.jar
     public String pathToJar = userDirectory + fileSeparator + sortingType.name() +
@@ -15,5 +16,10 @@ public enum Configuration {
 
     public void setSortingType(AvailableSortingAlgorithms type) {
         sortingType = type;
+    }
+
+    public void setPathToJar(AvailableSortingAlgorithms type) {
+        pathToJar = userDirectory + fileSeparator + type.name() + fileSeparator +
+                "jar" + fileSeparator + type.name();
     }
 }

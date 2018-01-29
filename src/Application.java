@@ -6,8 +6,17 @@ import java.util.Properties;
 public class Application {
     private Object port;
 
+    public void createSortingPortInstance() {
+       // try {
 
-    public void setConfigurationProperties() {
+        //}
+    }
+
+    public void updateConfigurationPreferences() {
+
+    }
+
+    public void setSortingProperties() {
         Properties properties = new Properties();
         String sortingProperties = Configuration.instance.sortingProperties;
 
@@ -25,21 +34,23 @@ public class Application {
         }
 
         String sortingType = properties.getProperty(SortingPropertyKeys.sortingType.name());
-        switch (sortingType) {
-            case "bucketsort":
-            case "countingsort":
+        for (AvailableSortingAlgorithms algorithm : AvailableSortingAlgorithms.values()) {
+            if (algorithm.name().equals(sortingType)) {
                 Configuration.instance.setSortingType(AvailableSortingAlgorithms.valueOf(sortingType));
-                break;
-
-            default:
-                System.err.println("Error: Invalid sorting algorithm '" + sortingType + "'");
-                throw new UnsupportedOperationException("unknown sorting type");
+                return;
+            }
         }
+
+        System.err.println("Error: Invalid sorting algorithm '" + sortingType + "'");
+        throw new UnsupportedOperationException("unknown sorting type");
 
     }
 
     public static void main(String[] args) {
         Application application = new Application();
-        application.setConfigurationProperties();
+
+        System.out.println("");
+
+        application.setSortingProperties();
     }
 }
