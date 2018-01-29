@@ -97,16 +97,16 @@ public class Application {
         Properties properties = new Properties();
         String sortingProperties = Configuration.instance.sortingProperties;
 
-        try (FileInputStream outputStream = new FileInputStream(sortingProperties)) {
-            properties.load(outputStream);
+        properties.setProperty(SortingPropertyKeys.sortingType.name(), Configuration.instance.sortingType.name());
+        properties.setProperty(SortingPropertyKeys.listToSort.name(), convertToString(Configuration.instance.listToSort));
+
+        try (OutputStream outputStream = new FileOutputStream(sortingProperties)) {
+            properties.store(outputStream, "Comment");
         } catch (FileNotFoundException exc) {
             exc.printStackTrace();
         } catch (IOException exc) {
             exc.printStackTrace();
         }
-
-        properties.setProperty(SortingPropertyKeys.sortingType.name(), Configuration.instance.sortingType.name());
-        properties.setProperty(SortingPropertyKeys.listToSort.name(), convertToString(Configuration.instance.listToSort));
     }
 
     public String convertToString(List<Integer> list) {
@@ -238,7 +238,7 @@ public class Application {
                         if (validComponent) {
                             Configuration.instance.setSortingType(AvailableSortingAlgorithms.valueOf(arguments));
                         } else {
-                            System.err.println("Error");
+                            System.err.println("Error: invalid component name '" + arguments + "'.");
                         }
 
                     } else {
@@ -247,7 +247,14 @@ public class Application {
                     break;
                 case "execute":
                     if (!arguments.isEmpty()) {
-                        executeSortAlgorithm(portInstance, parseList(arguments));
+                        List<Integer> sortedList = parseList(arguments);
+                        System.out.println("List before sort: " + convertToString(sortedList));
+                        executeSortAlgorithm(portInstance, sortedList);
+                        System.out.println("List after sort:  " + convertToString(sortedList));
+                    } else {
+                        System.out.println("List before sort: " + convertToString(Configuration.instance.listToSort));
+                        executeSortAlgorithm(portInstance, Configuration.instance.listToSort);
+                        System.out.println("List after sort:  " + convertToString(Configuration.instance.listToSort));
                     }
                     break;
                 case "quit":
