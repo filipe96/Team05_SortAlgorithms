@@ -34,15 +34,10 @@ public class CountingSort {
         }
 
         for (int index = 0; index < list.size(); index++) { //TODO CleanCode!
-
             if (sortedList.contains(list.get(index))) {
-
                 int numberOfElements = sortedList.get(list.get(index));
-
                 numberOfElements++;
-
                 sortedList.set(list.get(index), numberOfElements);
-
             } else {
                 sortedList.set(list.get(index), 1);
             }
@@ -52,9 +47,7 @@ public class CountingSort {
 
         for (int i = 0; i <= max; i++) {
             for (int j = 0; j < sortedList.get(i); j++) {
-
                 list.set(insertPositionOfIndex, i);
-
                 insertPositionOfIndex++;
             }
         }
