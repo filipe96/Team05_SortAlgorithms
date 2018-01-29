@@ -82,11 +82,11 @@ public class BucketSort {
      * are some tricky conditions in here that need to be dealt with as this is not
      * a simple pigeonholable implementation of bucket sort.
      * 
-     * @param number
-     * @param listMin
-     * @param listMax
-     * @param numBuckets
-     * @return
+     * @param number The number to
+     * @param listMin The lower end of the bucket spectrum
+     * @param listMax The upper end of the bucket spectrum
+     * @param numBuckets The number of buckets given
+     * @return the bucket number
      */
 	private static int bucketForNumber(Integer number, Integer listMin, Integer listMax, Integer numBuckets) {
 		Long difference = (long)listMax - listMin;
