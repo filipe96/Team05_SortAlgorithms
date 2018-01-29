@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -8,6 +9,17 @@ import java.util.List;
  * @version December 20, 2008
  */
 public class BucketSort {
+
+    private static BucketSort instance = new BucketSort();
+    public Port port;
+
+    private BucketSort() {
+        port = new Port();
+    }
+
+    public static BucketSort getInstance() {
+        return instance;
+    }
 
     /**
      * Bucket sort where nothing is known about the data items other than that they
@@ -100,5 +112,18 @@ public class BucketSort {
 		}
 		return bucket;
 	}
+
+	public class Port implements ISort {
+
+        @Override
+        public void sort(List<Integer> listToSort) {
+            BucketSort.sort(listToSort);
+        }
+
+        @Override
+        public void sort(List<Integer> listToSort, int listMin, int listMax) {
+            BucketSort.sort(listToSort, listMin, listMax);
+        }
+    }
     
 }
