@@ -26,4 +26,16 @@ public enum Configuration {
     public String getPathToJar() {
         return pathToJar;
     }
+
+    public String getClassNameForSortAlgorithm() {
+        switch (Configuration.instance.sortingType) {
+            case bucketsort:
+                return "BucketSort";
+
+            case countingsort:
+                return "CountingSort";
+        }
+
+        return "Component";
+    }
 }
