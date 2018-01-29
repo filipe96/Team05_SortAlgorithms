@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -8,6 +9,17 @@ import java.util.List;
  * @version December 20, 2008
  */
 public class BucketSort {
+
+    private static BucketSort instance = new BucketSort();
+    public Port port;
+
+    private BucketSort() {
+        port = new Port();
+    }
+
+    public static BucketSort getInstance() {
+        return instance;
+    }
 
     /**
      * Bucket sort where nothing is known about the data items other than that they
@@ -82,11 +94,11 @@ public class BucketSort {
      * are some tricky conditions in here that need to be dealt with as this is not
      * a simple pigeonholable implementation of bucket sort.
      * 
-     * @param number
-     * @param listMin
-     * @param listMax
-     * @param numBuckets
-     * @return
+     * @param number The number to
+     * @param listMin The lower end of the bucket spectrum
+     * @param listMax The upper end of the bucket spectrum
+     * @param numBuckets The number of buckets given
+     * @return the bucket number
      */
 	private static int bucketForNumber(Integer number, Integer listMin, Integer listMax, Integer numBuckets) {
 		Long difference = (long)listMax - listMin;
@@ -100,5 +112,18 @@ public class BucketSort {
 		}
 		return bucket;
 	}
+
+	public class Port implements ISort {
+
+        @Override
+        public void sort(List<Integer> listToSort) {
+            BucketSort.sort(listToSort);
+        }
+
+        @Override
+        public void sort(List<Integer> listToSort, int listMin, int listMax) {
+            BucketSort.sort(listToSort, listMin, listMax);
+        }
+    }
     
 }
