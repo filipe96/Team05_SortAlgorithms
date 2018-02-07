@@ -17,11 +17,11 @@ public class Application {
     public Object createSortingPortInstance(AvailableSortingAlgorithms sortingType, boolean debugMode) {
         Object port = null;
         try {
-            Configuration.instance.setPathToJar(sortingType);
-            URL[] urls = { new File(Configuration.instance.getPathToJar()).toURI().toURL() };
+            String jarPath = Configuration.instance.constructJarPath(sortingType);
+            URL[] urls = { new File(jarPath).toURI().toURL() };
             URLClassLoader urlClassLoader = new URLClassLoader(urls, Application.class.getClassLoader());
 
-            String classNameToLoad = Configuration.instance.getClassNameForSortAlgorithm();
+            String classNameToLoad = Configuration.instance.getClassNameForSortAlgorithm(sortingType);
             Class<?> clazz = Class.forName(classNameToLoad, true, urlClassLoader);
 
             Object instance = clazz.getMethod("getInstance").invoke(null);
@@ -31,7 +31,7 @@ public class Application {
             String version = (String) getVersion.invoke(port);
 
             if (debugMode) {
-                System.out.println("pathToJar : " + Configuration.instance.getPathToJar());
+                System.out.println("pathToJar : " + jarPath);
                 System.out.println("clazz     : " + clazz.toString());
                 System.out.println("port      : " + port.hashCode());
                 System.out.println("version   : " + version);
@@ -56,6 +56,7 @@ public class Application {
     public void updateConfigurationPreferences(AvailableSortingAlgorithms selectedAlgorithm, List<Integer> listToSort) {
         Configuration.instance.setSortingType(selectedAlgorithm);
         Configuration.instance.setListToSort(listToSort);
+        Configuration.instance.setPathToJar(selectedAlgorithm);
     }
 
     public void loadSortingProperties() {
@@ -89,6 +90,7 @@ public class Application {
         }
 
         String listToSort = properties.getProperty(SortingPropertyKeys.listToSort.name());
+        System.out.println("listToSort: " + listToSort);
         List<Integer> parsedList = parseList(listToSort);
         updateConfigurationPreferences(AvailableSortingAlgorithms.valueOf(sortingType), parsedList);
     }
@@ -98,7 +100,7 @@ public class Application {
         String sortingProperties = Configuration.instance.sortingProperties;
 
         properties.setProperty(SortingPropertyKeys.sortingType.name(), Configuration.instance.sortingType.name());
-        properties.setProperty(SortingPropertyKeys.listToSort.name(), convertToString(Configuration.instance.listToSort));
+        properties.setProperty(SortingPropertyKeys.listToSort.name(), "5, 3, 7, 6, 1, 4, 8, 2, 9");
 
         try (OutputStream outputStream = new FileOutputStream(sortingProperties)) {
             properties.store(outputStream, "Comment");
@@ -147,28 +149,16 @@ public class Application {
         return listValues;
     }
 
-    public String getVersionFromPort(Object distinctPort) {
-        String version = null;
+    public String getInformationFromPort(Object distinctPort, String methodName) {
+        String information = null;
         try {
-            Method method = distinctPort.getClass().getMethod("getVersion");
-            version = (String) method.invoke(distinctPort);
+            Method method = distinctPort.getClass().getMethod(methodName);
+            information = (String) method.invoke(distinctPort);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException exc) {
             exc.printStackTrace();
         }
 
-        return version;
-    }
-
-    public String getDescriptionFromPort(Object distinctPort) {
-        String description = null;
-        try {
-            Method method = distinctPort.getClass().getMethod("getDescription");
-            description = (String) method.invoke(distinctPort);
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException exc) {
-            exc.printStackTrace();
-        }
-
-        return description;
+        return information;
     }
 
     public void executeSortAlgorithm(Object distinctPort, List<Integer> listToSort) {
@@ -186,7 +176,7 @@ public class Application {
         printAvailableCommands();
         boolean quit = false;
         while (!quit) {
-            loadSortingProperties();
+            //loadSortingProperties();
             System.out.println("\nCurrent component: " + Configuration.instance.sortingType.name());
             System.out.print("Command: ");
             String commandString = new Scanner(System.in).nextLine();
@@ -206,6 +196,7 @@ public class Application {
                     case "execute":
                     case "quit":
                     case "exit":
+                    case "help":
                         stringBuilder.append(commandWord.concat(" "));
                         break;
 
@@ -237,6 +228,7 @@ public class Application {
 
                         if (validComponent) {
                             Configuration.instance.setSortingType(AvailableSortingAlgorithms.valueOf(arguments));
+                            portInstance = createSortingPortInstance(AvailableSortingAlgorithms.valueOf(arguments), true);
                         } else {
                             System.err.println("Error: invalid component name '" + arguments + "'.");
                         }
@@ -261,8 +253,11 @@ public class Application {
                 case "exit":
                     quit = true;
                     break;
+                case "help":
+                    printAvailableCommands();
+                    break;
                 default:
-                    System.err.println("Error");
+                    System.err.println("Error: Unknown command '" + stringBuilder.toString() + "'!");
             }
 
             writeSortingProperties();
@@ -271,35 +266,40 @@ public class Application {
 
     public void printCurrentComponent() {
         System.out.println("\nCurrent component:\n");
-        String algorithmVersion = getVersionFromPort(portInstance);
-        String algorithmDescription = getDescriptionFromPort(portInstance);
+        String algorithmVersion = getInformationFromPort(portInstance, "getVersion");
+        String algorithmDescription = getInformationFromPort(portInstance, "getDescription");
+        String algorithmSource = getInformationFromPort(portInstance, "getAlgorithmSource");
         System.out.printf("  %c %s\n", '*', Configuration.instance.sortingType.name());
         System.out.println("      " + algorithmVersion);
         System.out.println("      " + algorithmDescription);
+        System.out.println("      " + algorithmSource);
     }
 
     public void printAvailableComponents() {
         System.out.println("\nAvailable components:\n");
         for (AvailableSortingAlgorithms algorithm : AvailableSortingAlgorithms.values()) {
             Object algorithmPort = createSortingPortInstance(algorithm, false);
-            String algorithmVersion = getVersionFromPort(algorithmPort);
-            String algorithmDescription = getDescriptionFromPort(algorithmPort);
+            String algorithmVersion = getInformationFromPort(algorithmPort, "getVersion");
+            String algorithmDescription = getInformationFromPort(algorithmPort, "getDescription");
+            String algorithmSource = getInformationFromPort(portInstance, "getAlgorithmSource");
             System.out.printf("  %c %s\n", (algorithm == Configuration.instance.sortingType ? '*' : '-'), algorithm.name());
             System.out.println("      " + algorithmVersion);
             System.out.println("      " + algorithmDescription);
+            System.out.println("      " + algorithmSource);
             System.out.println();
         }
         System.out.println("\n  Current component *");
     }
 
     public void printAvailableCommands() {
-        System.out.println("The set of available commands includes following:\n");
+        System.out.println("\nThe set of available commands includes following:\n");
         System.out.println("  show components               List all available sorting algorithms.");
         System.out.println("  show current component        Display the currently selected component.");
         System.out.println("  set current component <name>  Choose <name> as the current component.");
         System.out.println("                                The list of available components is displayed below.");
-        System.out.println("  execute n1, n2, n3, ...       Execute the selected sorting algorithm with");
+        System.out.println("  execute [n1, n2, n3, ...]     Execute the selected sorting algorithm with");
         System.out.println("                                a list consisting of n1, n2, n3 (integer values).");
+        System.out.println("  help                          List available commands.");
         System.out.println("  quit / exit                   Quit the command prompt.");
     }
 

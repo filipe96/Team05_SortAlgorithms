@@ -47,7 +47,7 @@ public class BucketSort {
      *
      * @param list The list of Integers to be sorted (in place).
      */
-    public static void bucketSort(List<Integer> list) {
+    private static void bucketSort(List<Integer> list) {
         bucketSort(list, Integer.MIN_VALUE, Integer.MAX_VALUE);
     }
 
@@ -63,12 +63,12 @@ public class BucketSort {
      * @param listMin The lower end of the bucket spectrum
      * @param listMax The upper end of the bucket spectrum
      */
-    public static void bucketSort(List<Integer> list, Integer listMin, Integer listMax) {
+    private static void bucketSort(List<Integer> list, Integer listMin, Integer listMax) {
         if (list == null || list.size() == 0) {
             return;
         }
 
-        int numBuckets = (int) Math.ceil(list.size() / 30); // ~ 30 items/bucket
+        int numBuckets = (int) Math.ceil(list.size() / ((list.size() / 6) == 0 ? 1 : list.size() / 6)); // ~ 30 items/bucket
 
         // initialize the buckets
         ArrayList<ArrayList<Integer>> buckets = new ArrayList<ArrayList<Integer>>(numBuckets);
@@ -116,16 +116,16 @@ public class BucketSort {
         return bucket;
     }
 
-    public String getInnerVersion() {
+    private String getInnerVersion() {
         return "BucketSort Algorithm - Version 1.0";
     }
 
-    public String getInnerAlgorithmSource() {
+    private String getInnerAlgorithmSource() {
         return "Source: https://github.com/posborne/java-algorithms/" +
                 "blob/master/src/net/posborne/algorithms/sorting/BucketSort.java";
     }
 
-    public String getInnerDescription() {
+    private String getInnerDescription() {
         return "BucketSort sorts a list of integers by adding them into so-called buckets.";
     }
 

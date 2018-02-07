@@ -1,7 +1,5 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public enum Configuration {
     instance;
@@ -33,8 +31,13 @@ public enum Configuration {
         return pathToJar;
     }
 
-    public String getClassNameForSortAlgorithm() {
-        switch (Configuration.instance.sortingType) {
+    public String constructJarPath(AvailableSortingAlgorithms algorithm) {
+        return userDirectory + fileSeparator + algorithm.name() + fileSeparator + "jar" +
+                fileSeparator + algorithm.name() + ".jar";
+    }
+
+    public String getClassNameForSortAlgorithm(AvailableSortingAlgorithms algorithm) {
+        switch (algorithm) {
             case bucketsort:
                 return "BucketSort";
 
