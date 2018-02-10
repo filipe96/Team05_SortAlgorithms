@@ -1,5 +1,3 @@
-package net.posborne.algorithms.sorting;
-
 import java.util.List;
 
 /**

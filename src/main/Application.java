@@ -1,65 +1,24 @@
+package main;
+
+import factory.PortFactory;
+import sort.SortingAlgorithm;
+import sort.SortingPropertyKeys;
+
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.*;
 
 public class Application {
     private Object portInstance;
 
-    public Object createSortingPortInstance(boolean debugMode) {
-        return createSortingPortInstance(Configuration.instance.sortingType, debugMode);
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public Object createSortingPortInstance(AvailableSortingAlgorithms sortingType, boolean debugMode) {
-        Object port = null;
-        try {
-            String jarPath = Configuration.instance.constructJarPath(sortingType);
-            URL[] urls = { new File(jarPath).toURI().toURL() };
-            URLClassLoader urlClassLoader = new URLClassLoader(urls, Application.class.getClassLoader());
-
-            String classNameToLoad = Configuration.instance.getClassNameForSortAlgorithm(sortingType);
-            Class<?> clazz = Class.forName(classNameToLoad, true, urlClassLoader);
-
-            Object instance = clazz.getMethod("getInstance").invoke(null);
-            port = clazz.getDeclaredField("port").get(instance);
-
-            Method getVersion = port.getClass().getMethod("getVersion");
-            String version = (String) getVersion.invoke(port);
-
-            if (debugMode) {
-                System.out.println("pathToJar : " + jarPath);
-                System.out.println("clazz     : " + clazz.toString());
-                System.out.println("port      : " + port.hashCode());
-                System.out.println("version   : " + version);
-            }
-        } catch (NoSuchMethodException exc) {
-            System.out.println("--- exception");
-            System.out.println(exc.getMessage());
-            exc.printStackTrace();
-        } catch (ClassNotFoundException | NoSuchFieldException exc) {
-            exc.printStackTrace();
-        } catch (IllegalAccessException exc) {
-            exc.printStackTrace();
-        } catch (InvocationTargetException exc) {
-            exc.printStackTrace();
-        } catch (MalformedURLException exc) {
-            exc.printStackTrace();
-        }
-
-        return port;
-    }
-
-    public void updateConfigurationPreferences(AvailableSortingAlgorithms selectedAlgorithm, List<Integer> listToSort) {
+    private void updateConfigurationPreferences(SortingAlgorithm selectedAlgorithm, List<Integer> listToSort) {
         Configuration.instance.setSortingType(selectedAlgorithm);
         Configuration.instance.setListToSort(listToSort);
         Configuration.instance.setPathToJar(selectedAlgorithm);
     }
 
-    public void loadSortingProperties() {
+    private void loadSortingProperties() {
         Properties properties = new Properties();
         String sortingProperties = Configuration.instance.sortingProperties;
 
@@ -78,7 +37,7 @@ public class Application {
 
         boolean validAlgorithmSpecified = false;
         String sortingType = properties.getProperty(SortingPropertyKeys.sortingType.name());
-        for (AvailableSortingAlgorithms algorithm : AvailableSortingAlgorithms.values()) {
+        for (SortingAlgorithm algorithm : SortingAlgorithm.values()) {
             if (algorithm.name().equals(sortingType)) {
                 validAlgorithmSpecified = true;
             }
@@ -92,10 +51,10 @@ public class Application {
         String listToSort = properties.getProperty(SortingPropertyKeys.listToSort.name());
         System.out.println("listToSort: " + listToSort);
         List<Integer> parsedList = parseList(listToSort);
-        updateConfigurationPreferences(AvailableSortingAlgorithms.valueOf(sortingType), parsedList);
+        updateConfigurationPreferences(SortingAlgorithm.valueOf(sortingType), parsedList);
     }
 
-    public void writeSortingProperties() {
+    private void writeSortingProperties() {
         Properties properties = new Properties();
         String sortingProperties = Configuration.instance.sortingProperties;
 
@@ -105,13 +64,13 @@ public class Application {
         try (OutputStream outputStream = new FileOutputStream(sortingProperties)) {
             properties.store(outputStream, "Comment");
         } catch (FileNotFoundException exc) {
-            exc.printStackTrace();
+            System.err.println("FileNotFoundException: " + exc.getMessage());
         } catch (IOException exc) {
-            exc.printStackTrace();
+            System.err.println("IOException: " + exc.getMessage());
         }
     }
 
-    public String convertToString(List<Integer> list) {
+    private String convertToString(List<Integer> list) {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < list.size() - 1; i++) {
             stringBuilder.append(list.get(i)).append(", ");
@@ -120,22 +79,23 @@ public class Application {
         return stringBuilder.toString();
     }
 
-    public List<Integer> parseList(String listRepresentation) {
+    private List<Integer> parseList(String listRepresentation) {
         try {
             return parseAppliedList(listRepresentation);
         } catch (NumberFormatException exc) {
             System.err.println("Error: Invalid list format");
-            exc.printStackTrace();
+            System.err.println(exc.getMessage());
         }
         return null;
     }
 
-    public List<Integer> parseAppliedList(String listRepresentation) {
-        if (!listRepresentation.matches("^\\s*[0-9]+(\\s*,\\s*[0-9]+)*$")) {
+    private List<Integer> parseAppliedList(String listRepresentation) {
+        if (!listRepresentation.matches("^\\s*[0-9]+(\\s*,\\s*[0-9]+)*,?\\s*$")) {
             throw new NumberFormatException("list format is invalid (expected: n1, n2, n3, ...)");
         }
 
         String[] listElements = listRepresentation.replaceAll("\\s+", "").split(",");
+        listElements = removeEmptyStrings(listElements);
         List<Integer> listValues = new ArrayList<>();
 
         try {
@@ -143,13 +103,23 @@ public class Application {
                 listValues.add(Integer.parseInt(slot));
             }
         } catch (NumberFormatException exc) {
-            exc.printStackTrace();
+            System.err.println(exc.getMessage());
         }
 
         return listValues;
     }
 
-    public String getInformationFromPort(Object distinctPort, String methodName) {
+    private String[] removeEmptyStrings(String[] listElements) {
+        List<String> filteredList = new ArrayList<>();
+        for (String element : listElements) {
+            if (!element.isEmpty()) {
+                filteredList.add(element);
+            }
+        }
+        return filteredList.toArray(new String[0]);
+    }
+
+    private String getInformationFromPort(Object distinctPort, String methodName) {
         String information = null;
         try {
             Method method = distinctPort.getClass().getMethod(methodName);
@@ -161,7 +131,7 @@ public class Application {
         return information;
     }
 
-    public void executeSortAlgorithm(Object distinctPort, List<Integer> listToSort) {
+    private void executeSortAlgorithm(Object distinctPort, List<Integer> listToSort) {
         try {
             Method method = distinctPort.getClass().getMethod("sort", List.class);
             method.invoke(distinctPort, listToSort);
@@ -170,13 +140,12 @@ public class Application {
         }
     }
 
-    public void execute() {
-        portInstance = createSortingPortInstance(true);
+    private void execute() {
+        portInstance = PortFactory.produceInstance(true);
 
         printAvailableCommands();
         boolean quit = false;
         while (!quit) {
-            //loadSortingProperties();
             System.out.println("\nCurrent component: " + Configuration.instance.sortingType.name());
             System.out.print("Command: ");
             String commandString = new Scanner(System.in).nextLine();
@@ -220,17 +189,18 @@ public class Application {
                 case "set current component":
                     if (!arguments.isEmpty()) {
                         boolean validComponent = false;
-                        for (AvailableSortingAlgorithms component : AvailableSortingAlgorithms.values()) {
+                        for (SortingAlgorithm component : SortingAlgorithm.values()) {
                             if (component.name().equals(arguments)) {
                                 validComponent = true;
                             }
                         }
 
                         if (validComponent) {
-                            Configuration.instance.setSortingType(AvailableSortingAlgorithms.valueOf(arguments));
-                            portInstance = createSortingPortInstance(AvailableSortingAlgorithms.valueOf(arguments), true);
+                            Configuration.instance.setSortingType(SortingAlgorithm.valueOf(arguments));
+                            portInstance = PortFactory.produceInstance(SortingAlgorithm.valueOf(arguments), true);
                         } else {
                             System.err.println("Error: invalid component name '" + arguments + "'.");
+                            System.err.println("Call 'show components' for a list of valid component names.");
                         }
 
                     } else {
@@ -239,10 +209,12 @@ public class Application {
                     break;
                 case "execute":
                     if (!arguments.isEmpty()) {
-                        List<Integer> sortedList = parseList(arguments);
-                        System.out.println("List before sort: " + convertToString(sortedList));
-                        executeSortAlgorithm(portInstance, sortedList);
-                        System.out.println("List after sort:  " + convertToString(sortedList));
+                        List<Integer> appliedList = parseList(arguments);
+                        if (appliedList != null) {
+                            System.out.println("List before sort: " + convertToString(appliedList));
+                            executeSortAlgorithm(portInstance, appliedList);
+                            System.out.println("List after sort:  " + convertToString(appliedList));
+                        }
                     } else {
                         System.out.println("List before sort: " + convertToString(Configuration.instance.listToSort));
                         executeSortAlgorithm(portInstance, Configuration.instance.listToSort);
@@ -257,14 +229,14 @@ public class Application {
                     printAvailableCommands();
                     break;
                 default:
-                    System.err.println("Error: Unknown command '" + stringBuilder.toString() + "'!");
+                    System.err.println("Error: Unknown command '" + commandString + "'!");
             }
 
             writeSortingProperties();
         }
     }
 
-    public void printCurrentComponent() {
+    private void printCurrentComponent() {
         System.out.println("\nCurrent component:\n");
         String algorithmVersion = getInformationFromPort(portInstance, "getVersion");
         String algorithmDescription = getInformationFromPort(portInstance, "getDescription");
@@ -275,13 +247,13 @@ public class Application {
         System.out.println("      " + algorithmSource);
     }
 
-    public void printAvailableComponents() {
+    private void printAvailableComponents() {
         System.out.println("\nAvailable components:\n");
-        for (AvailableSortingAlgorithms algorithm : AvailableSortingAlgorithms.values()) {
-            Object algorithmPort = createSortingPortInstance(algorithm, false);
+        for (SortingAlgorithm algorithm : SortingAlgorithm.values()) {
+            Object algorithmPort = PortFactory.produceInstance(algorithm, false);
             String algorithmVersion = getInformationFromPort(algorithmPort, "getVersion");
             String algorithmDescription = getInformationFromPort(algorithmPort, "getDescription");
-            String algorithmSource = getInformationFromPort(portInstance, "getAlgorithmSource");
+            String algorithmSource = getInformationFromPort(algorithmPort, "getAlgorithmSource");
             System.out.printf("  %c %s\n", (algorithm == Configuration.instance.sortingType ? '*' : '-'), algorithm.name());
             System.out.println("      " + algorithmVersion);
             System.out.println("      " + algorithmDescription);
@@ -291,7 +263,7 @@ public class Application {
         System.out.println("\n  Current component *");
     }
 
-    public void printAvailableCommands() {
+    private void printAvailableCommands() {
         System.out.println("\nThe set of available commands includes following:\n");
         System.out.println("  show components               List all available sorting algorithms.");
         System.out.println("  show current component        Display the currently selected component.");

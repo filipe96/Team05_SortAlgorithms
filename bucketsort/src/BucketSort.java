@@ -71,21 +71,21 @@ public class BucketSort {
         int numBuckets = (int) Math.ceil(list.size() / ((list.size() / 6) == 0 ? 1 : list.size() / 6)); // ~ 30 items/bucket
 
         // initialize the buckets
-        ArrayList<ArrayList<Integer>> buckets = new ArrayList<ArrayList<Integer>>(numBuckets);
+        List<List<Integer>> buckets = new ArrayList<List<Integer>>(numBuckets);
         for (int i = 0; i < numBuckets; i++) {
             buckets.add(new ArrayList<Integer>());
         }
 
         // go through the list and put each item in the correct bucket
-        for (int i = 0; i < list.size(); i++) {
-            int bucket = bucketForNumber(list.get(i), listMin, listMax, numBuckets);
-            buckets.get(bucket).add(list.get(i));
+        for (Integer element : list) {
+            int bucket = bucketForNumber(element, listMin, listMax, numBuckets);
+            buckets.get(bucket).add(element);
         }
 
         // sort each of the buckets using insertion sort
         int listIndex = 0;
-        for (ArrayList<Integer> bucket : buckets) {
-            net.posborne.algorithms.sorting.InsertionSort.sort(bucket);
+        for (List<Integer> bucket : buckets) {
+            InsertionSort.sort(bucket);
             for (Integer item : bucket) {
                 list.set(listIndex++, item);
             }

@@ -1,10 +1,14 @@
+package main;
+
+import sort.SortingAlgorithm;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public enum Configuration {
     instance;
 
-    public AvailableSortingAlgorithms sortingType = AvailableSortingAlgorithms.bucketsort;
+    public SortingAlgorithm sortingType = SortingAlgorithm.bucketsort;
     public List<Integer> listToSort = new ArrayList<>();
 
     public String userDirectory = System.getProperty("user.dir");
@@ -18,11 +22,11 @@ public enum Configuration {
     public String propertiesFile = "sorting.properties";
     public String sortingProperties = userDirectory + fileSeparator + propertiesFile;
 
-    public void setSortingType(AvailableSortingAlgorithms type) {
+    public void setSortingType(SortingAlgorithm type) {
         sortingType = type;
     }
 
-    public void setPathToJar(AvailableSortingAlgorithms type) {
+    public void setPathToJar(SortingAlgorithm type) {
         pathToJar = userDirectory + fileSeparator + type.name() + fileSeparator +
                 "jar" + fileSeparator + type.name() + ".jar";
     }
@@ -31,12 +35,12 @@ public enum Configuration {
         return pathToJar;
     }
 
-    public String constructJarPath(AvailableSortingAlgorithms algorithm) {
+    public String constructJarPath(SortingAlgorithm algorithm) {
         return userDirectory + fileSeparator + algorithm.name() + fileSeparator + "jar" +
                 fileSeparator + algorithm.name() + ".jar";
     }
 
-    public String getClassNameForSortAlgorithm(AvailableSortingAlgorithms algorithm) {
+    public String getClassNameForSortAlgorithm(SortingAlgorithm algorithm) {
         switch (algorithm) {
             case bucketsort:
                 return "BucketSort";
