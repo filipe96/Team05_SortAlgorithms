@@ -1,5 +1,4 @@
 *.class
 .DS_Store
 build
-jar
 .idea
